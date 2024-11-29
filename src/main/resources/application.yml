@@ -1,0 +1,4 @@
+aws:
+  access-key: 123
+  secret-key: 234
+  simple-email-service-source-email: workflow@email.com
