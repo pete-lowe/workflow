@@ -16,6 +16,7 @@ import java.util.UUID;
 public class WorkflowConverter {
 
     public static WorkflowDao toDao(Workflow workflow) {
+        //TODO: this needs to split workflow and tasks and handle the child parent relationships
         Instant creationTime = Instant.now();
         String workflowId = UUID.randomUUID().toString();
         return WorkflowDao.builder()
