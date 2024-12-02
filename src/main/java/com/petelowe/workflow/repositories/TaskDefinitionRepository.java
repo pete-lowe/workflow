@@ -38,7 +38,8 @@ public class TaskDefinitionRepository {
     }
 
     public Optional<TaskDefinitionDao> getTaskById(TaskId taskId) {
-        //TODO: silly but need to sort of generic type mappings
+        //TODO: silly but need to sort of generic type mappings, should do this via json mapping
+        //directly from the db
         var dao = dynamoRepository.get(
                 Key.builder()
                         .partitionValue(PartitionKeySupplier.getTaskDefinitionPartitionKey(taskId.id()))
