@@ -6,5 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record AwsConfigurationProperties(
         String accessKey,
         String secretKey,
-        String simpleEmailServiceSourceEmail
+        String simpleEmailServiceSourceEmail,
+        String taskExecutionNotificationTopic,
+        String taskExecutionNotificationQueue,
+        String dynamoDbTableName
 ) {}

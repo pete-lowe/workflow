@@ -2,3 +2,7 @@ aws:
   access-key: 123
   secret-key: 234
   simple-email-service-source-email: workflow@email.com
+  task-queue: task-queue
+  task-execution-notification-topic: task-execution-notifications
+  task-execution-notification-queue: task-execution-notification-queue
+  dynamo-db-table-name: workflow

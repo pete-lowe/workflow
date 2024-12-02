@@ -1,0 +1,179 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "TaskQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "workflow-task-queue",
+        "RedrivePolicy": {
+          "deadLetterTargetArn": {
+            "Fn::GetAtt": [
+              "TaskDeadLetterQueue",
+              "Arn"
+            ]
+          },
+          "maxReceiveCount": 3
+        }
+      }
+    },
+    "TaskDeadLetterQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "workflow-task-dead-letter-queue"
+      }
+    },
+    "TaskExecutionNotificationTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "TopicName": "task-execution-notifications"
+      }
+    },
+    "TaskExecutionNotificationQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "task-execution-notification-queue",
+        "RedrivePolicy": {
+          "deadLetterTargetArn": {
+            "Fn::GetAtt": [
+              "TaskExecutionNotificationDeadLetterQueue",
+              "Arn"
+            ]
+          },
+          "maxReceiveCount": 3
+        }
+      }
+    },
+    "TaskExecutionNotificationDeadLetterQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "task-execution-notification-letter-queue"
+      }
+    },
+    "TaskExecutionNotificationSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Properties": {
+        "Endpoint": {
+          "Fn::GetAtt": [
+            "TaskExecutionNotificationQueue",
+            "Arn"
+          ]
+        },
+        "TopicArn": "arn:aws:sns:us-east-1:000000000000:task-execution-notifications",
+        "Protocol": "sqs",
+        "RawMessageDelivery": "true"
+      }
+    },
+    "TaskExecutionNotificationQueuePolicy": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "Queues": [
+          {
+            "Ref": "TaskExecutionNotificationQueue"
+          }
+        ],
+        "PolicyDocument": {
+          "Statement": {
+            "Action": [
+              "sqs:SendMessage"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Fn::GetAtt": [
+                "TaskExecutionNotificationQueue",
+                "Arn"
+              ]
+            },
+            "Principal": {
+              "AWS": "*"
+            },
+            "Condition": {
+              "ArnLike": {
+                "aws:SourceArn": "arn:aws:sns:us-east-1:000000000000:task-execution-notifications"
+              }
+            }
+          }
+        }
+      }
+    },
+    "WorkflowS3": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "workflow"
+      }
+    },
+    "WorkflowDb": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "workflow",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "partitionKey",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "sortKey",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "taskType",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "creationDate",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "dataType",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "partitionKey",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "sortKey",
+            "KeyType": "RANGE"
+          }
+        ],
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "taskTypeGsi",
+            "KeySchema": [
+              {
+                "AttributeName": "taskType",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "creationDate",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          },
+          {
+            "IndexName": "taskDefinitionGsi",
+            "KeySchema": [
+              {
+                "AttributeName": "dataType",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "creationDate",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          }
+        ],
+        "TimeToLiveSpecification": {}
+      }
+    }
+  }
+}

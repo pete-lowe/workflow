@@ -1,0 +1,13 @@
+services:
+  localstack: # an AWS environment with basic services and an S3 bucket
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    container_name: localstack
+    environment:
+      DATA_DIR: /tmp/localstack/data # enable persistence
+      DEBUG: 1
+      HEALTH_TYPE: services
+    volumes:
+      - ./cloudformation:/cloudformation
+      - ./localstack:/etc/localstack/init/ready.d

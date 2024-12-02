@@ -1,11 +1,10 @@
 package com.petelowe.workflow.domain;
 
 public enum TaskType {
-
     SMS,
     EMAIL,
-    FETCH,
+    S3_GET,
+    S3_PUT,
     VALIDATE,
     UPLOAD
-
 }

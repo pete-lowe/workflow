@@ -15,6 +15,26 @@ java {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+	if (version.endsWith('SNAPSHOT')) {
+		maven { url 'https://repo.spring.io/snapshot' }
+	}
+
+	//	maven { url 'https://repo.spring.io/libs-staging-local' }
+}
+
+dependencyManagement {
+	resolutionStrategy {
+		cacheChangingModulesFor 0, 'seconds'
+	}
+	applyMavenExclusions = false
+	generatedPomCustomization {
+		enabled = false
+	}
+	imports {
+		mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:3.0.5"
+
+	}
 }
 
 dependencies {
@@ -23,8 +43,17 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	implementation 'io.awspring.cloud:spring-cloud-aws'
 
+	implementation 'software.amazon.awssdk:dynamodb-enhanced'
+	implementation 'com.amazonaws:aws-java-sdk-sqs:1.12.779'
+	implementation 'com.amazonaws:aws-java-sdk-ses:1.12.779'
+	implementation 'com.amazonaws:aws-java-sdk-sns:1.12.779'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.779'
+
+
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
